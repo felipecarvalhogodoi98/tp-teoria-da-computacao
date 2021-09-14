@@ -22,8 +22,8 @@ Trabalho pratico Máquina de Turing Universal que implemente heurísticas para o
 ### Colaboradores 
 
 - Alunos
- - <a href="https://github.com/ThiagoSallesSantos">Thiago Salles Santos</a>
- - <a href="https://github.com/felipecarvalhogodoi98">Felipe Carvalho Godoi</a>
+  - <a href="https://github.com/ThiagoSallesSantos">Thiago Salles Santos</a>
+  - <a href="https://github.com/felipecarvalhogodoi98">Felipe Carvalho Godoi</a>
 
 - Professor
   - <a href="https://github.com/rdurelli">Rafael Durelli</a>
