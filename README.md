@@ -5,9 +5,6 @@
 Trabalho pratico Máquina de Turing Universal que implemente heurísticas para o Problema da Parada.
 
 ---
-
-- Linguagem
-  - [X] Python
   
 - Requisitos
   - [ ] Em breve ...
