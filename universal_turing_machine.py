@@ -34,32 +34,22 @@ class UniversalTuringMachine:
         # Separo todas as transições
         for transition in turing_machine_raw.split('00'):
             items = transition.split('0')  # Separo cada valor da transição
-            # LEMBRETE: A ordem por ENQUANTO é 1º estado atual, 2º lendo x, 3º estado destino, 4º escrevendo y, 5º movendo a cabeça para direita/esquerda, 6º final ou não
+            # LEMBRETE: A ordem por ENQUANTO é 1º estado atual, 2º final ou não, 3º lendo x, 4º estado destino, 5º escrevendo y, 6º movendo a cabeça para direita/esquerda
             # Vejo se o estado atual não consta como chave, caso não consta eu crio uma chave com estado atual
-
-            # Estado normal com funções de transição
-            if len(items) >= 5:
-                if items[0] not in self._mt.keys():
-                    self._mt.update({
-                        items[0]: dict({
-                            'name': get_name_state(items[0]),
-                            'final': len(items) > 5
-                        })})
-
-                # Vejo se o lendo x não consta como chave, caso não consta eu crio uma chave lendo x na chave [estado atual]
-                if items[1] not in self._mt[items[0]].keys():
-                    self._mt[items[0]].update({items[1]: None})
-                # Salvo os valores (Estado destino, escrever y, direção da cabeça) na chave [lendo ]x da chave [estado atual]
-                self._mt[items[0]][items[1]] = tuple(
-                    (items[2], items[3], items[4]))
-
-            # Estado sem função de transição
-            else:
+            if items[0] not in self._mt.keys():
                 self._mt.update({
                     items[0]: dict({
                         'name': get_name_state(items[0]),
-                        'final': len(items) > 1
+                        'final': items[1] == '11'
                     })})
+
+            if len(items) > 2:
+                # Vejo se o lendo x não consta como chave, caso não consta eu crio uma chave lendo x na chave [estado atual]
+                if items[2] not in self._mt[items[0]].keys():
+                    self._mt[items[0]].update({items[2]: None})
+                # Salvo os valores (Estado destino, escrever y, direção da cabeça) na chave [lendo ]x da chave [estado atual]
+                self._mt[items[0]][items[2]] = tuple(
+                    (items[3], items[4], items[5]))
 
         # Cria JSON com a mt
         with open('mt.json', 'w') as json_file:
@@ -79,7 +69,9 @@ class UniversalTuringMachine:
                 return 'Parou no estado ' + get_name_state(aux_state)
             # Vejo se lendo x no [estado atual] ele realiza alguma transição
             if aux_value_tape not in self._mt[aux_state].keys():
-                return 'Parou no estado ' + get_name_state(aux_state) + ' pois não leu ' + str(aux_value_tape)
+                if self._mt[aux_state]['final']:
+                    return 'Parou no estado final ' + get_name_state(aux_state)
+                return 'Travou no estado ' + get_name_state(aux_state)
 
             # Pego o proximo estado
             state = self._mt[aux_state][aux_value_tape][0]
