@@ -3,11 +3,6 @@
 
 ### Descrição
 Trabalho pratico Máquina de Turing Universal que implemente heurísticas para o Problema da Parada.
-
----
-  
-- Requisitos
-  - [ ] Em breve ...
   
 ---
 
