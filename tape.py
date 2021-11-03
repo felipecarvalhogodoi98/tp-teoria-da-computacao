@@ -3,9 +3,9 @@ class Tape:
     def __init__(self, word_raw):  # Construtor
         self._head = 0  # Define a posição inicial da cabeça de leitura
         # Cria uma lista que será minha fita a ser lida
-        self._tape = word_raw.split('0')
+        self._tape = word_raw
 
-    def get_tape(self):
+    def get_tape(self): # Retorno a Tape
         return self._tape
 
     def read_head(self):  # Pegar o elemento que minha cabeça de leitura está apontando
@@ -25,6 +25,4 @@ class Tape:
             return False
         self._head -= 1
         return True
-
-    def print_tape(self):  # Apenas uma impressão da tape
-        print(self._tape)
+    

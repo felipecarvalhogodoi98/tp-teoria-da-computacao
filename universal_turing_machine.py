@@ -1,136 +1,117 @@
 from tape import Tape
+from state import State
+from instance import Instance
 import json
-
-
-def get_name_state(state):
-    return 'q' + str(len(state) - 1)
-
+import copy
 
 class UniversalTuringMachine:
 
     def __init__(self):
         # Atributo que salva o conceito lógico da minha MT (Favor ver o conceito lógico no comentário no final do arquivo)
         self._mt = dict({})
-        self._tapes = None
-        ## self._tapes = []
+        self._dict_states = dict({}) # Dicionário para armazenar o estados e seus nomes de referência (Favor ver o conceito lógico no comentário no final do arquivo)
+        self._state_origin = '1' # Nome do primeiro estado
+        self._word_raw = None # Armazenar a palavra de entrada
 
     def read_uh(self, uh):
         # Retirando os valores de começo e fim da mt e da palavra
-        uh = uh.replace('\n', '').split('000')
+        uh = uh.split('000')
         # OBS: O replace de \n é para caso a entrada esteja em formato de melhor visualização para a pessoa (Facultativo)
         # Pegando a parte que representa a Maquina de Turing
-        turing_machine_raw = uh[1]
+        turing_machine_raw = uh[1].strip()
         # Pegando a parte que representa a palavra que será lida
-        word_raw = uh[-2]
-
-        self.create_tape(word_raw)
+        self._word_raw = uh[-2].strip()
         self.create_mt(turing_machine_raw)
-
-    def create_tape(self, word_raw):  # Criando a fita
-        self._tapes = Tape(word_raw)
-        # self._tapes.append(Tape(word_raw))
 
     def create_mt(self, turing_machine_raw):  # Criando a MT
         # Separo todas as transições
         for transition in turing_machine_raw.split('00'):
-            items = transition.split('0')  # Separo cada valor da transição
-            # LEMBRETE: A ordem por ENQUANTO é 1º estado atual, 2º lendo x, 3º estado destino, 4º escrevendo y, 5º movendo a cabeça para direita/esquerda, 6º final ou não
-            # Vejo se o estado atual não consta como chave, caso não consta eu crio uma chave com estado atual
-
-            # Estado normal com funções de transição
-            if len(items) >= 5:
-                if items[0] not in self._mt.keys():
-                    self._mt.update({
-                        items[0]: dict({
-                            'name': get_name_state(items[0]),
-                            'final': len(items) > 5
-                        })})
-
-                # Vejo se o lendo x não consta como chave, caso não consta eu crio uma chave lendo x na chave [estado atual]
-                if items[1] not in self._mt[items[0]].keys():
-                    self._mt[items[0]].update({items[1]: None})
-                # Salvo os valores (Estado destino, escrever y, direção da cabeça) na chave [lendo ]x da chave [estado atual]
-                self._mt[items[0]][items[1]] = tuple(
-                    (items[2], items[3], items[4]))
-
-            # Estado sem função de transição
-            else:
-                self._mt.update({
-                    items[0]: dict({
-                        'name': get_name_state(items[0]),
-                        'final': len(items) > 1
-                    })})
-
-        # Cria JSON com a mt
-        with open('mt.json', 'w') as json_file:
-            json.dump(self._mt, json_file, indent=4)
+            items = transition.strip().split('0')  # Separo cada valor da transição
+            if items != ['']:
+                # LEMBRETE: A ordem por ENQUANTO é: 
+                # 1º estado origem, [0]
+                # 2º estado origem é final ou não, [1]
+                # 3º lendo x, [2]
+                # 4º estado destino, [3]
+                # 5º estado destino é final ou não, [4]
+                # 6º escrevendo y, [5]
+                # 7º movendo a cabeça para direita/esquerda [6]
+                # Vejo se o estado atual não consta como chave, caso não consta eu crio uma chave com estado atual
+                name_state_source, final_state_source = items[:2] # Lendo os valores de estado origem e se estado origem é final ou não
+                if name_state_source not in self._dict_states.keys(): # Vejo se o estado que acabei de ler consta como chave e possui assim já um Objeto de State
+                    # Adiciono uma chave e um valor no dicionário de estados, a chave será nome do estado no arquivo, e valor o Objeto do tipo State
+                    self._dict_states.update(dict({name_state_source : State(name_state_source.count('1'), True if (final_state_source == '11') else False)}))
+                state_source = self._dict_states[name_state_source] # Pego o Objeto do tipo State do estado origem ao qual a chave faz referência
+                read_x = items[2] # Pego o valor que precisa ler quando está no estado origem
+                name_state_destiny, final_state_destiny = items[3:5] # Pego os valores de estado destino e se estado destino é final ou não
+                if name_state_destiny not in self._dict_states.keys(): # Vejo se o estado que acabei de ler consta como chave e possui assim já um Objeto de State
+                    # Adiciono uma chave e um valor no dicionário de estados, a chave será nome do estado no arquivo, e valor o Objeto do tipo State
+                    self._dict_states.update(dict({name_state_destiny : State(name_state_destiny.count('1'), True if (final_state_destiny == '11') else False)}))
+                state_destiny = self._dict_states[name_state_destiny] # Pego o Objeto do tipo State do destino origem ao qual a chave faz referência
+                write_y = items[5] # Pego o valor de escrita da operação
+                move = items[6] # Pego o valor de movimento da operação
+                if state_source not in self._mt.keys(): # Vejo se o estado de origem não consta na minha mt como chave
+                    # Caso não consta cria-se uma chave com estado origem, e adiciona no dicionário que o estado faz referência um chave com valor a ser lido e uma lista
+                    self._mt.update(dict({state_source : dict({read_x : list([])})}))
+                elif read_x not in self._mt[state_source].keys(): # Vejo se o valor a ser lido não consta no dicionário do estado
+                    # Caso não consta adiciona no dicionário que o estado faz referência um chave com valor a ser lido e uma lista
+                    self._mt[state_source].update(dict({read_x : list([])}))
+                self._mt[state_source][read_x].append([state_destiny, write_y, move]) # Adiciona a operação a lista de operações ao ler x no estado qi
+        
+        # dict_json = dict({"mt_universal" : self._mt, "list_states" : self._dict_states})
+        # with open('mt.json', 'w') as json_file:
+            # json.dump(dict_json, json_file, indent=4)
 
     def start(self):  # Função que realiza o processo da MT
-        state = '1'
-
-        i = 0
-        while True:
-            i += 1
-
-            aux_state = state
-            aux_value_tape = self._tapes.read_head()
-
-            if aux_state not in self._mt.keys():  # Vejo se o estado atual que estou faz alguma transição
-                return 'Parou no estado ' + get_name_state(aux_state)
-            # Vejo se lendo x no [estado atual] ele realiza alguma transição
-            if aux_value_tape not in self._mt[aux_state].keys():
-                return 'Parou no estado ' + get_name_state(aux_state) + ' pois não leu ' + str(aux_value_tape)
-
-            # Pego o proximo estado
-            state = self._mt[aux_state][aux_value_tape][0]
-            # Realizo a escrita na fita
-            self._tapes.write_tape(self._mt[aux_state][aux_value_tape][1])
-            # Vejo se move a cabeça da fita para direita ou esquerda
-            if self._mt[aux_state][aux_value_tape][2] == '1':  # Caso Direita
-                self._tapes.move_head_to_right()
-            else:  # Caso Esquerda
-                if self._tapes.move_head_to_left() is False:  # Vejo se a fita não quebrou
-                    return 'ERRO - A fita foi quebrada!'
-
-    def print_tape(self):  # Apenas um print
-        self._tapes.print_tape()
-
-
+        state = self._dict_states[self._state_origin] # Pego o estado inicial
+        list_instances = list([]) # Crio uma lista de Instâncias
+        list_instances.append(Instance(state, Tape(self._word_raw.split('0')))) # Adiciono a lista de instância a instância inicial
+        while (list_instances != []): # Só para quando não houver mais instâncias
+            instance = list_instances.pop(0) # Retiro a primeira instância do vetor para trabalhar com ela
+            state_inst = instance.get_state() # Pego o estado da instância
+            tape_inst = instance.get_tape() # Pego a tape da instância
+            if state_inst not in self._mt.keys(): # Vejo se o estado em que a instância se encontra realiza alguma ação
+                if state_inst.get_final(): # Vejo se o estado em que a instância se encontra é final
+                    return "ACEITA! \nA MT aceita a palavra " + str(self._word_raw) + ", parou no estado " + str(state_inst.get_name())
+            elif tape_inst.read_head() not in self._mt[state_inst].keys(): # Vejo se o estado em que a instância se encontra, ler o valor da cabeça da tape
+                if state_inst.get_final(): # Vejo se o estado em que a instância se encontra é final
+                    return "ACEITA! \nA MT aceita a palavra " + str(self._word_raw) + ", parou no estado " + str(state_inst.get_name())
+            else: # Caso exista operação a ser feita no estado em que a instância se encontra
+                for operation in self._mt[state_inst][tape_inst.read_head()]: # Faço todas as operações possiveis dentro do estado qi lendo x
+                    # OBS: para cada nova operação uma nova instância será criada e adicionada a lista de instâncias
+                    next_state = operation[0] # Pego o estado destino
+                    new_tape = copy.copy(tape_inst) # Copio a tape
+                    new_tape.write_tape(operation[1]) # Escrevo na tape o valor de y na cabeça da tape
+                    if operation[2] == "1": # Vejo se operação de movimento é para direita
+                        new_tape.move_head_to_right() # Movo para direita
+                        list_instances.append(Instance(next_state, new_tape)) # Adiciono a nova Instância na lista de Instâncias
+                    elif operation[2] == "11": # Vejo se operação de movimento é para esquerda
+                        if new_tape.move_head_to_left(): # Vejo se a operação de mover para esquerda deu certo
+                            list_instances.append(Instance(next_state, new_tape)) # Caso sim, adiciono a nova Instância na lista de Instâncias
+        return "REJEITA!"
+        
 # EXPLICAÇÃO
+# q0, q1 ... qn, são forma usadas para identificar um Objeto do tipo State
+# As chaves mais externas (no caso q0 e q1) serão Objetos do tipo State, e o valor dessas chaves será outro dicionário
+# As chaves mais internas serão o que conseguem ler na tape, quando se encontra num estado x, 
+# e o valor desta chaves é uma a lista contendo as operações possiveis ao ler a o valor da chave na tape
+# self._mt:
 # {
-    # "q0": { ## Ta no estado q0
-        # final: false
-        # "a": ## Ler a (ou seja a cabeça da fita está lendo a)
-        # [
-        # "q1", ## Vai para o q1
-        # "b", ## Escreve b na fita
-        # "R" ## Move a cabeça da fita para direita
-        # ]
+    # q0:{ 
+        # "11":[[q1, "111", "1"]],
+        # "111":[[q1, "111", "1"], [q2, "1", "1"]]
     # },
-    # "q1": { ## Ta no estado q1
-        # final: false
-        # OBS: Nesse caso ele pode ler a ou b, tudo depende de qual valor a cabeça da fita está lendo
-        # "a": ## Ler a (ou seja a cabeça da fita está lendo a)
-        # [
-        # "q1", ## Vai para o q1
-        # "b", ## Escreve b na fita
-        # "R" ## Move a cabeça da fita para direita
-        # ]
-        # "b": ## Ler b (ou seja a cabeça da fita está lendo b)
-        # [
-        # "q0", ## Vai para o q0
-        # "a", ## Escreve b na fita
-        # "L" ## Move a cabeça da fita para esquerda
-        # ]
-    # },
-    # "q2": { ## Ta no estado q2
-        # final: true ## é um estado final
-        # "a": ## Ler a (ou seja a cabeça da fita está lendo a)
-        # [
-        # "q1", ## Vai para o q1
-        # "b", ## Escreve b na fita
-        # "R" ## Move a cabeça da fita para direita
-        # ]
-        #
+    # q1:{
+        # "111":[[q1, "111", "1"]]
     # }
+# }
+#################################################################################
+# q0, q1 ... qn, são forma usadas para identificar um Objeto do tipo State
+# As chaves são os nomes dos estados e como encontramos eles no arquvios
+# Os valor serão os Objetos do tipo State ao qual cada chave faz referência
+# self._dict_states:
+# {
+    # "1" : q0,
+    # "11" : q1,
+    # "111" : q2
 # }
