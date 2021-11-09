@@ -88,6 +88,7 @@ class UniversalTuringMachine:
                     elif operation[2] == "11": # Vejo se operação de movimento é para esquerda
                         if new_tape.move_head_to_left(): # Vejo se a operação de mover para esquerda deu certo
                             list_instances.append(Instance(next_state, new_tape)) # Caso sim, adiciono a nova Instância na lista de Instâncias
+            del(instance)
         return "REJEITA!"
         
 # EXPLICAÇÃO
