@@ -65,17 +65,21 @@ class UniversalTuringMachine:
     def start(self):  # Função que realiza o processo da MT
         state = self._dict_states[self._state_origin] # Pego o estado inicial
         list_instances = list([]) # Crio uma lista de Instâncias
-        list_instances.append(Instance(state, Tape(self._word_raw.split('0')))) # Adiciono a lista de instância a instância inicial
+        list_instances.append(Instance(state, Tape(self._word_raw.split('0')), -1)) # Adiciono a lista de instância a instância inicial
         while (list_instances != []): # Só para quando não houver mais instâncias
             instance = list_instances.pop(0) # Retiro a primeira instância do vetor para trabalhar com ela
+            if(instance.get_transition() % 1000 == 0 and instance.get_transition() != 0): # Verifico se ocorreu 1000 interações, desde do começo ou desde a última verificação
+                answer = input("Já foram computadas um total de " + str(instance.get_transition()) + " transições, a MT pode estar em loop, deseja continuar? (y/n) ")
+                if answer == "n":
+                    return "INDEFINIDO! \nA MT foi finalizada antes de computar por completo a palavra " + str(self._word_raw) + " devido a loop ou outros fatores!"
             state_inst = instance.get_state() # Pego o estado da instância
             tape_inst = instance.get_tape() # Pego a tape da instância
             if state_inst not in self._mt.keys(): # Vejo se o estado em que a instância se encontra realiza alguma ação
                 if state_inst.get_final(): # Vejo se o estado em que a instância se encontra é final
-                    return "ACEITA! \nA MT aceita a palavra " + str(self._word_raw) + ", parou no estado " + str(state_inst.get_name())
+                    return "ACEITA! \nA MT aceita a palavra " + str(self._word_raw) + ", parou no estado " + str(state_inst.get_name()) + " foi necessário um total de " + str(instance.get_transition()) + " transições."
             elif tape_inst.read_head() not in self._mt[state_inst].keys(): # Vejo se o estado em que a instância se encontra, ler o valor da cabeça da tape
                 if state_inst.get_final(): # Vejo se o estado em que a instância se encontra é final
-                    return "ACEITA! \nA MT aceita a palavra " + str(self._word_raw) + ", parou no estado " + str(state_inst.get_name())
+                    return "ACEITA! \nA MT aceita a palavra " + str(self._word_raw) + ", parou no estado " + str(state_inst.get_name()) + " foi necessário um total de " + str(instance.get_transition()) + " transições."
             else: # Caso exista operação a ser feita no estado em que a instância se encontra
                 for operation in self._mt[state_inst][tape_inst.read_head()]: # Faço todas as operações possiveis dentro do estado qi lendo x
                     # OBS: para cada nova operação uma nova instância será criada e adicionada a lista de instâncias
@@ -84,12 +88,12 @@ class UniversalTuringMachine:
                     new_tape.write_tape(operation[1]) # Escrevo na tape o valor de y na cabeça da tape
                     if operation[2] == "1": # Vejo se operação de movimento é para direita
                         new_tape.move_head_to_right() # Movo para direita
-                        list_instances.append(Instance(next_state, new_tape)) # Adiciono a nova Instância na lista de Instâncias
+                        list_instances.append(Instance(next_state, new_tape, instance.get_transition())) # Adiciono a nova Instância na lista de Instâncias
                     elif operation[2] == "11": # Vejo se operação de movimento é para esquerda
                         if new_tape.move_head_to_left(): # Vejo se a operação de mover para esquerda deu certo
-                            list_instances.append(Instance(next_state, new_tape)) # Caso sim, adiciono a nova Instância na lista de Instâncias
+                            list_instances.append(Instance(next_state, new_tape, instance.get_transition())) # Caso sim, adiciono a nova Instância na lista de Instâncias
             del(instance)
-        return "REJEITA!"
+        return "REJEITA! \nA MT não aceita a palavra " + str(self._word_raw)
         
 # EXPLICAÇÃO
 # q0, q1 ... qn, são forma usadas para identificar um Objeto do tipo State
