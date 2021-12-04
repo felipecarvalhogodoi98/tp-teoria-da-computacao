@@ -3,10 +3,11 @@
 
 ## Descrição
 Trabalho pratico Máquina de Turing Universal que implemente heurísticas para o Problema da Parada.
+A Máquina de Turing Universal será chamada de UH
 
 ---
 
-## Decodificação da Maquina de Turing
+## Decodificação da UH
 - Transições
   - <p>Formato δ(qi,fi, x) = [qj, fj, y, d]</p>
   
@@ -40,8 +41,8 @@ Trabalho pratico Máquina de Turing Universal que implemente heurísticas para o
   ``cd tp-teoria-da-computacao``<br>
   ``python3 main.py examples/nomeDaMquinaDeTuring/casoAexecutar.txt``<br>
 
-  ``nomeDaMquinaDeTuring`` representa a MT para ser executada <br>
-  ``casoAexecutar`` arquivo txt com a maquina de turing e palavra decodificadas
+  ``nomeDaMquinaDeTuring`` representa a UH para ser executada <br>
+  ``casoAexecutar`` arquivo txt com a UH e palavra decodificadas
 
 ---
 
