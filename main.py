@@ -7,7 +7,7 @@ def main():
         archive.close()
     utm = UniversalTuringMachine() ## Iniciando o objeto de MTU
     utm.read_uh(uh) ## Passando o valor de UH, para que MT desejada seja criada
-    print('Resultado:', utm.start()) ## Iniciar a execução da MTU e exibir o resultado
+    print('\nResultado:', utm.start()) ## Iniciar a execução da MTU e exibir o resultado
 
 if __name__ == '__main__':
     main()

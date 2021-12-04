@@ -71,7 +71,7 @@ class UniversalTuringMachine:
             if(instance.get_transition() % 1000 == 0 and instance.get_transition() != 0): # Verifico se ocorreu 1000 interações, desde do começo ou desde a última verificação
                 answer = input("Já foram computadas um total de " + str(instance.get_transition()) + " transições, a MT pode estar em loop, deseja continuar? (y/n) ")
                 if answer == "n":
-                    return "INDEFINIDO! \nA MT foi finalizada antes de computar por completo a palavra " + str(self._word_raw) + " devido a loop ou outros fatores!"
+                    return "INDEFINIDO! \nA MT foi finalizada antes de computar por completo a palavra: " + str(self._word_raw) + ".\nDevido a loop ou outros fatores!"
             state_inst = instance.get_state() # Pego o estado da instância
             tape_inst = instance.get_tape() # Pego a tape da instância
             
@@ -80,10 +80,10 @@ class UniversalTuringMachine:
             
             if state_inst not in self._mt.keys(): # Vejo se o estado em que a instância se encontra realiza alguma ação
                 if state_inst.get_final(): # Vejo se o estado em que a instância se encontra é final
-                    return "ACEITA! \nA MT aceita a palavra " + str(self._word_raw) + ", parou no estado " + str(state_inst.get_name()) + " foi necessário um total de " + str(instance.get_transition()) + " transições. \nA fita após as operações ficou assim: " + str(tape_inst.get_tape())
+                    return "ACEITA! \nA MT aceita a palavra: " + str(self._word_raw) + ".\nParou no estado " + str(state_inst.get_name()) + " foi necessário um total de " + str(instance.get_transition()) + " transições. \nA fita após as operações ficou assim: " + str(tape_inst.get_tape())
             elif tape_inst.read_head() not in self._mt[state_inst].keys(): # Vejo se o estado em que a instância se encontra, ler o valor da cabeça da tape
                 if state_inst.get_final(): # Vejo se o estado em que a instância se encontra é final
-                    return "ACEITA! \nA MT aceita a palavra " + str(self._word_raw) + ", parou no estado " + str(state_inst.get_name()) + " foi necessário um total de " + str(instance.get_transition()) + " transições. \nA fita após as operações ficou assim: " + str(tape_inst.get_tape())
+                    return "ACEITA! \nA MT aceita a palavra: " + str(self._word_raw) + ".\nParou no estado " + str(state_inst.get_name()) + " foi necessário um total de " + str(instance.get_transition()) + " transições. \nA fita após as operações ficou assim: " + str(tape_inst.get_tape())
             else: # Caso exista operação a ser feita no estado em que a instância se encontra
                 for operation in self._mt[state_inst][tape_inst.read_head()]: # Faço todas as operações possiveis dentro do estado qi lendo x
                     # OBS: para cada nova operação uma nova instância será criada e adicionada a lista de instâncias
@@ -97,7 +97,7 @@ class UniversalTuringMachine:
                         if new_tape.move_head_to_left(): # Vejo se a operação de mover para esquerda deu certo
                             list_instances.append(Instance(next_state, new_tape, instance.get_transition())) # Caso sim, adiciono a nova Instância na lista de Instâncias
             del(instance)
-        return "REJEITA! \nA MT não aceita a palavra " + str(self._word_raw)
+        return "REJEITA! \nA MT não aceita a palavra: " + str(self._word_raw)
         
 # EXPLICAÇÃO
 # q0, q1 ... qn, são forma usadas para identificar um Objeto do tipo State
