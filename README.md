@@ -2,7 +2,7 @@
 
 
 ## Descrição
-Trabalho pratico Máquina de Turing Universal que implemente heurísticas para o Problema da Parada.
+Trabalho pratico Máquina de Turing Universal que implemente heurísticas para o Problema da Parada.<br>
 A Máquina de Turing Universal será chamada de UH
 
 ---
