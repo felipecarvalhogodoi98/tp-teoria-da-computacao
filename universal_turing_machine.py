@@ -120,3 +120,15 @@ class UniversalTuringMachine:
     # "11" : q1,
     # "111" : q2
 # }
+#################################################################################
+## Informações de leitura:
+
+## Elementos do alfabeto e seu respectivo parâmetro
+# a = 1
+# b = 11
+# B = 111 
+
+## Elementos de deslocação de cabeça e seu respectivo parâmetro
+# R = 1
+# L = 11
+
