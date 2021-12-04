@@ -1,22 +1,51 @@
 # Máquina de Turing Universal
 
 
-### Descrição
+## Descrição
 Trabalho pratico Máquina de Turing Universal que implemente heurísticas para o Problema da Parada.
 
 ---
+
+## Decodificação da Maquina de Turing
+- Transições
+  - <p>Formato δ(qi,fi, x) = [qj, fj, y, d]</p>
   
-- Requisitos
-  - [ ] Em breve ...
+  | Transição  | Significado   |
+  | ------------------- | ------------------- |
+  |  qi | estado atual  |
+  |  fi |  estado atual é final ou não |
+  |  x |  lendo x |
+  |  qj |  estado de destino |
+  |  fj |  estado de destino é final ou não |
+  |  y |   escrevendo y |
+  |  d |  direção da cabeça de leitura |
+
+- Codificação dos símbolos
+  | Símbolo  | Codificação   |
+  | ------------------- | ------------------- |
+  | a | 1 |
+  | b | 11 |
+  | B | 111 |
+  | # ou outro qualquer | 1111 ou mais |
+  | q0 | 1 |
+  | q1 | 11 |
+  | qx | 1<sup>n+1</sup> |
+  | R | 1 |
+  | L | 11 |
   
 ---
 
-### Tecnologias
+## Como executar
+  ``git clone https://github.com/felipecarvalhogodoi98/tp-teoria-da-computacao.git``<br>
+  ``cd tp-teoria-da-computacao``<br>
+  ``python3 main.py examples/nomeDaMquinaDeTuring/casoAexecutar.txt``<br>
 
-![Python](https://img.shields.io/badge/-Python-333?style=for-the-badge&logo=python)
+  ``nomeDaMquinaDeTuring`` representa a MT para ser executada <br>
+  ``casoAexecutar`` arquivo txt com a maquina de turing e palavra decodificadas
 
+---
 
-### Colaboradores 
+## Colaboradores 
 
 - Alunos
   - <a href="https://github.com/ThiagoSallesSantos">Thiago Salles Santos</a>
@@ -24,3 +53,5 @@ Trabalho pratico Máquina de Turing Universal que implemente heurísticas para o
 
 - Professor
   - <a href="https://github.com/rdurelli">Rafael Durelli</a>
+
+
