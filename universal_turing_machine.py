@@ -20,7 +20,7 @@ class UniversalTuringMachine:
         # Pegando a parte que representa a Maquina de Turing
         turing_machine_raw = uh[1].strip()
         # Pegando a parte que representa a palavra que será lida
-        self._word_raw = uh[-2].strip()
+        self._word_raw = uh[-2].strip().split('0')
         self.create_mt(turing_machine_raw)
 
     def create_mt(self, turing_machine_raw):  # Criando a MT
@@ -65,7 +65,7 @@ class UniversalTuringMachine:
     def start(self):  # Função que realiza o processo da MT
         state = self._dict_states[self._state_origin] # Pego o estado inicial
         list_instances = list([]) # Crio uma lista de Instâncias
-        list_instances.append(Instance(state, Tape(self._word_raw.split('0')), -1)) # Adiciono a lista de instância a instância inicial
+        list_instances.append(Instance(state, Tape(self._word_raw), -1)) # Adiciono a lista de instância a instância inicial
         while (list_instances != []): # Só para quando não houver mais instâncias
             instance = list_instances.pop(0) # Retiro a primeira instância do vetor para trabalhar com ela
             if(instance.get_transition() % 1000 == 0 and instance.get_transition() != 0): # Verifico se ocorreu 1000 interações, desde do começo ou desde a última verificação
@@ -74,12 +74,16 @@ class UniversalTuringMachine:
                     return "INDEFINIDO! \nA MT foi finalizada antes de computar por completo a palavra " + str(self._word_raw) + " devido a loop ou outros fatores!"
             state_inst = instance.get_state() # Pego o estado da instância
             tape_inst = instance.get_tape() # Pego a tape da instância
+            
+            ## Print para ver o estado da tape por instancia
+            # print("O estado da fita após " + str(instance.get_transition()) + " transições é:\n" + str(tape_inst.get_tape()) + "\nE se encontra no estado: " + str(state_inst.get_name()) + "\n\n")
+            
             if state_inst not in self._mt.keys(): # Vejo se o estado em que a instância se encontra realiza alguma ação
                 if state_inst.get_final(): # Vejo se o estado em que a instância se encontra é final
-                    return "ACEITA! \nA MT aceita a palavra " + str(self._word_raw) + ", parou no estado " + str(state_inst.get_name()) + " foi necessário um total de " + str(instance.get_transition()) + " transições."
+                    return "ACEITA! \nA MT aceita a palavra " + str(self._word_raw) + ", parou no estado " + str(state_inst.get_name()) + " foi necessário um total de " + str(instance.get_transition()) + " transições. \nA fita após as operações ficou assim: " + str(tape_inst.get_tape())
             elif tape_inst.read_head() not in self._mt[state_inst].keys(): # Vejo se o estado em que a instância se encontra, ler o valor da cabeça da tape
                 if state_inst.get_final(): # Vejo se o estado em que a instância se encontra é final
-                    return "ACEITA! \nA MT aceita a palavra " + str(self._word_raw) + ", parou no estado " + str(state_inst.get_name()) + " foi necessário um total de " + str(instance.get_transition()) + " transições."
+                    return "ACEITA! \nA MT aceita a palavra " + str(self._word_raw) + ", parou no estado " + str(state_inst.get_name()) + " foi necessário um total de " + str(instance.get_transition()) + " transições. \nA fita após as operações ficou assim: " + str(tape_inst.get_tape())
             else: # Caso exista operação a ser feita no estado em que a instância se encontra
                 for operation in self._mt[state_inst][tape_inst.read_head()]: # Faço todas as operações possiveis dentro do estado qi lendo x
                     # OBS: para cada nova operação uma nova instância será criada e adicionada a lista de instâncias
